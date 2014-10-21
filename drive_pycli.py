@@ -137,9 +137,9 @@ def do_auth():
     DEFAULT_DRIVE_API_CRED = cred
     return cred
 
-def get_drive_service():
+def get_drive_service(force=False):
     global DEFAULT_DRIVE_API_SERVICE, DEFAULT_DRIVE_API_HTTP
-    if DEFAULT_DRIVE_API_SERVICE is None:
+    if DEFAULT_DRIVE_API_SERVICE is None or force:
         cred = do_auth()
         DEFAULT_DRIVE_API_HTTP = cred.authorize(DEFAULT_DRIVE_API_HTTP)
         DEFAULT_DRIVE_API_SERVICE = build('drive', 'v2', http=DEFAULT_DRIVE_API_HTTP)
@@ -296,8 +296,6 @@ def do_download(d):
     cred = do_auth()
     auth_headers = {}
     cred.apply(auth_headers)
-    serv = get_drive_service()
-    get_metadata_request = serv.files().get
     def human_readable(num):
         for x in ['bytes','KB','MB','GB','TB']:
             if num < 1024.0:
@@ -315,13 +313,18 @@ def do_download(d):
         return m.hexdigest()
 
     def download_file(fid, dirpath, fname):
+        expiry = cred.token_expiry
+        if (expiry - expiry.utcnow()).total_seconds() < 600:
+            cred.refresh()
+            cred.apply(auth_headers)
+            get_drive_service(force=True)
         fname = make_valid_fname(fname)
         if (len(fname) == 0) or fname == "." or fname == "..":
             return
         fname = os.path.join(dirpath, fname)
         print "Downloading (%s) to %s" % (fid, fname) 
         sys.stderr.write("Fetching meta data for %s\n" % fname)
-        metadata = get_metadata_request(fileId=fid).execute()
+        metadata = get_drive_service().files().get(fileId=fid).execute()
         sys.stderr.write("Got metadata, begining download\n")
         if ('downloadUrl' not in metadata) or ('md5Checksum' not in metadata) or ('fileSize' not in metadata):
             sys.stderr.write("Skipping Non-Contentfile : %s\n" % fname)

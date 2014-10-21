@@ -5,6 +5,8 @@ Google Drive Python Client
 
 This is a really simple basic python client which uses the google drive api, to view quota storage usage breakup , dump the file list, and also downloda a specific folder from Google Drive locally. The script is really designed for use in a Linux environment, though it should be portable to other distros.
 
+This is a small hacked up script to get the job done, and is no way a full fledged tool. It is prone to failure, please report any issues you face here in github. Use at your own risk.
+
 
 Installation
 ============

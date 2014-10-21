@@ -315,7 +315,7 @@ def do_download(d):
     def download_file(fid, dirpath, fname):
         expiry = cred.token_expiry
         if (expiry - expiry.utcnow()).total_seconds() < 600:
-            cred.refresh()
+            cred.refresh(DEFAULT_DRIVE_API_HTTP)
             cred.apply(auth_headers)
             get_drive_service(force=True)
         fname = make_valid_fname(fname)

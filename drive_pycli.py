@@ -322,7 +322,7 @@ def do_download(d):
         if (len(fname) == 0) or fname == "." or fname == "..":
             return
         fname = os.path.join(dirpath, fname)
-        print "Downloading (%s) to %s" % (fid, fname) 
+        sys.stderr.write("Downloading (%s) to %s\n" % (fid, fname) )
         sys.stderr.write("Fetching meta data for %s\n" % fname)
         metadata = get_drive_service().files().get(fileId=fid).execute()
         sys.stderr.write("Got metadata, begining download\n")
